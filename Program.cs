@@ -4,14 +4,17 @@ class Program
 {
     static void Main()
     {
-        Console.Write("Enter weight(kg): ");
-        double weight=double.Parse(Console.ReadLine());
+        Console.Write("Enter price: ");
+        double price=double.Parse(Console.ReadLine());
 
-        Console.Write("Enter height (m): ");
-        double height=double.Parse(Console.ReadLine());
+        Console.Write("Enter count: ");
+        int count=int.Parse(Console.ReadLine());
 
-        double bmi=weight/(height*height);
+        Console.Write("Enter discount(%): ");
+        double discount=double.Parse(Console.ReadLine());
 
-        Console.WriteLine($"BMI: {bmi:F2}");
+        double total=price*count*(1-discount/100);
+
+        Console.WriteLine($"Total: {total:F2}");
     }
 }
