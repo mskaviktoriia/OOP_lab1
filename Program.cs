@@ -4,47 +4,50 @@ class Program
 {
     static void Main()
     {
-        Console.Write("Enter day number (1-7): ");
-        int day=int.Parse(Console.ReadLine());
+        Console.Write("Enter medical card number: ");
+        int cardNumber=int.Parse(Console.ReadLine());
 
-        string dayName;
-        string hours;
-
-        switch (day)
+        if(cardNumber<0)
         {
-            case 1:
-                dayName="Monday";
-                hours ="08:00–18:00";
-                break;
-            case 2:
-                dayName="Tuesday";
-                hours="08:00–18:00";
-                break;
-            case 3:
-                dayName="Wednesday";
-                hours="09:00–17:00";
-                break;
-            case 4:
-                dayName="Thursday";
-                hours="08:00–18:00";
-                break;
-            case 5:
-                dayName="Friday";
-                hours="08:00–16:00";
-                break;
-            case 6:
-                dayName="Saturday";
-                hours="09:00–14:00";
-                break;
-            case 7:
-                dayName="Sunday";
-                hours="Day off";
-                break;
-            default:
-                Console.WriteLine("Invalid day number!");
-                return;
+            Console.WriteLine("Invalid card number!");
+            return;
         }
 
-        Console.WriteLine($"Day: {dayName}, Hours: {hours}");
+        int lastDigit=cardNumber%10;
+        string department;
+
+        switch(lastDigit)
+        {
+            case 0:
+            case 1:
+                department="General Therapy";
+                break;
+            case 2:
+            case 3:
+                department="Surgery";
+                break;
+            case 4:
+            case 5:
+                department="Cardiology";
+                break;
+            case 6:
+            case 7:
+                department="Neurology";
+                break;
+            case 8:
+            case 9:
+                department="Ophthalmology";
+                break;
+            default:
+                department="Unknown";
+                break;
+        }
+
+        string discountCard=(cardNumber%2==0)?"Yes":"No";
+        string routineCheckup =(cardNumber%3==0)?"Yes":"No";
+
+        Console.WriteLine($"Department: {department}");
+        Console.WriteLine($"Discount card: {discountCard}");
+        Console.WriteLine($"Routine checkup: {routineCheckup}");
     }
 }
