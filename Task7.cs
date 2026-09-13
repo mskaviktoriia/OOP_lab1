@@ -50,10 +50,11 @@ public static class Task7
                 firstOver1000=iWhile;
                 break;
             }
-            iWhile++ ;
+            iWhile++;
         }
 
         Console.WriteLine();
+        Console.WriteLine("=== Report ===");
         Console.WriteLine($"Number of appointments: {n}");
         Console.WriteLine($"Total amount: {sum:F2} UAH");
         Console.WriteLine($"Average appointment cost: {avg:F2} UAH");
