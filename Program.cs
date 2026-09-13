@@ -2,6 +2,6 @@
 {
     static void Main()
     {
-        Task6.Run();
+        Task7.Run();
     }
 }
