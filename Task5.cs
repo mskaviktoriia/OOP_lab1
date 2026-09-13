@@ -9,7 +9,7 @@ public static class Task5
 
         string info=GetDaySchedule(day);
 
-        Console.WriteLine($"Day: {info}");
+        Console.WriteLine($"Day: {info}") ;
     }
 
     public static string GetDaySchedule(int day)
