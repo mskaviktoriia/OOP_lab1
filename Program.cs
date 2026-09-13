@@ -4,50 +4,38 @@ class Program
 {
     static void Main()
     {
-        Console.Write("Enter medical card number: ");
-        int cardNumber=int.Parse(Console.ReadLine());
+        Console.Write("Enter number of appointments: ");
+        int n=int.Parse(Console.ReadLine());
 
-        if(cardNumber<0)
+        if (n<= 0)
         {
-            Console.WriteLine("Invalid card number!");
+            Console.WriteLine("Invalid number of appointments!");
             return;
         }
 
-        int lastDigit=cardNumber%10;
-        string department;
+        double total=0;
+        double min=double.MaxValue;
+        double max=double.MinValue;
 
-        switch(lastDigit)
+        for(int i=0;i<n;i++)
         {
-            case 0:
-            case 1:
-                department="General Therapy";
-                break;
-            case 2:
-            case 3:
-                department="Surgery";
-                break;
-            case 4:
-            case 5:
-                department="Cardiology";
-                break;
-            case 6:
-            case 7:
-                department="Neurology";
-                break;
-            case 8:
-            case 9:
-                department="Ophthalmology";
-                break;
-            default:
-                department="Unknown";
-                break;
+            Console.Write($"Enter cost {i+1}: ");
+            double cost=double.Parse(Console.ReadLine());
+
+            total+=cost;
+
+            if(cost<min)
+                min=cost;
+
+            if (cost>max)
+                max=cost;
         }
 
-        string discountCard=(cardNumber%2==0)?"Yes":"No";
-        string routineCheckup =(cardNumber%3==0)?"Yes":"No";
+        double avg=total/n;
 
-        Console.WriteLine($"Department: {department}");
-        Console.WriteLine($"Discount card: {discountCard}");
-        Console.WriteLine($"Routine checkup: {routineCheckup}");
+        Console.WriteLine($"Total: {total:F2}");
+        Console.WriteLine($"Average: {avg:F2}");
+        Console.WriteLine($"Min: {min:F2}");
+        Console.WriteLine($"Max: {max:F2}");
     }
 }
