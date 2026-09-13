@@ -4,17 +4,25 @@ class Program
 {
     static void Main()
     {
-        Console.Write("Enter price: ");
-        double price=double.Parse(Console.ReadLine());
+        Console.Write("Enter birth year: ");
+        int birthYear=int.Parse(Console.ReadLine());
 
-        Console.Write("Enter count: ");
-        int count=int.Parse(Console.ReadLine());
+        int age=2026-birthYear;
 
-        Console.Write("Enter discount(%): ");
-        double discount=double.Parse(Console.ReadLine());
+        if (age<0)
+        {
+            Console.WriteLine("Invalid year!");
+            return;
+        }
 
-        double total=price*count*(1-discount/100);
+        string category;
+        if (age<18)
+            category="child";
+        else if (age<60)
+            category="adult";
+        else
+            category="old";
 
-        Console.WriteLine($"Total: {total:F2}");
+        Console.WriteLine($"Age: {age}, Category: {category}");
     }
 }
