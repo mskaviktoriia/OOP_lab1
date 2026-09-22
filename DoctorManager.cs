@@ -76,6 +76,18 @@ namespace ConsoleApp1
             return true;
         }
 
+        // find by id, for AppointmentManager
+        public Doctor FindById(int id)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (doctors[i].Id == id)
+                    return doctors[i];
+            }
+
+            return null;
+        }
+
         // stats with unique specialities
         public void Statistics()
         {

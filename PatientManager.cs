@@ -105,6 +105,18 @@ namespace ConsoleApp1
             Console.WriteLine("Seniors: " + seniors);
         }
 
+        // find by id, for AppointmentManager
+        public Patient FindById(int id)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (patients[i].Id == id)
+                    return patients[i];
+            }
+
+            return null;
+        }
+
         public int Count => count;
     }
 }
