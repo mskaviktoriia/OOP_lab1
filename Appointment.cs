@@ -4,44 +4,49 @@ namespace ConsoleApp1
 {
     public class Appointment
     {
-        private static int idCounter = 1; // id counter
+        private static int _nextId = 1; // id counter
 
         public int Id { get; }
-        public int PatientId { get; set; }
-        public int DoctorId { get; set; }
-        public DateTime Date { get; set; }
+        public int PatientId { get; }
+        public int DoctorId { get; }
+        public DateTime ScheduledAt { get; set; }
+        public int DurationMinutes { get; set; }
         public string Status { get; private set; } // Scheduled, Cancelled, Completed
+        public string Notes { get; private set; }
 
-        public Appointment(int patientId, int doctorId, DateTime date)
+        // computed properties
+        public DateTime EndsAt => ScheduledAt.AddMinutes(DurationMinutes);
+        public bool IsUpcoming => ScheduledAt > DateTime.Now && Status == "Scheduled";
+
+        public Appointment(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
         {
-            Id = idCounter++;
+            Id = _nextId++;
             PatientId = patientId;
             DoctorId = doctorId;
-            Date = date;
+            ScheduledAt = scheduledAt;
+            DurationMinutes = durationMinutes;
             Status = "Scheduled";
+            Notes = "";
         }
 
-        // move to Cancelled, only from Scheduled
-        public bool Cancel()
+        // move Scheduled -> Cancelled
+        public bool Cancel(string reason = "")
         {
             if (Status != "Scheduled")
-            {
-                Console.WriteLine("Cannot cancel, status is already " + Status);
                 return false;
-            }
 
             Status = "Cancelled";
+            if (reason.Length > 0)
+                Notes = reason;
+
             return true;
         }
 
-        // move to Completed, only from Scheduled
+        // move Scheduled -> Completed
         public bool Complete()
         {
             if (Status != "Scheduled")
-            {
-                Console.WriteLine("Cannot complete, status is already " + Status);
                 return false;
-            }
 
             Status = "Completed";
             return true;
@@ -49,8 +54,14 @@ namespace ConsoleApp1
 
         public override string ToString()
         {
-            return "Id=" + Id + ", PatientId=" + PatientId + ", DoctorId=" + DoctorId +
-                ", Date=" + Date.ToString("g") + ", Status=" + Status;
+            string result = "[" + Id + "] Patient #" + PatientId + " -> Doctor #" + DoctorId +
+                " | " + ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "-" + EndsAt.ToString("HH:mm") +
+                " | " + Status;
+
+            if (Notes.Length > 0)
+                result += " | " + Notes;
+
+            return result;
         }
     }
 }
