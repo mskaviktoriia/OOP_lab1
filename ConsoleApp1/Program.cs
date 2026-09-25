@@ -30,6 +30,31 @@ clinic.DisplaySchedule(new DateTime(2026, 5, 9));
 Console.WriteLine();
 clinic.GenerateReport();
 
+Console.WriteLine();
+Console.WriteLine("=== Тест GrowablePatientManager ===");
+Console.WriteLine("Додаємо пацієнтів одного за одним...");
+
+GrowablePatientManager growableManager = new GrowablePatientManager();
+
+for (int i = 1; i <= 20; i++)
+{
+    growableManager.Add(new Patient("Тест", "Пацієнт" + i));
+    Console.WriteLine($"  Додано [{i}]. Розмір: {growableManager.Count} / {growableManager.Capacity}");
+}
+
+Console.WriteLine();
+Console.WriteLine("Тест пошуку:");
+
+Patient? foundPatient = growableManager.FindById(10);
+Console.WriteLine(foundPatient != null ? $"  FindById(10) → {foundPatient.FullName}" : "  FindById(10) → не знайдено");
+
+Patient? missingPatient = growableManager.FindById(99);
+Console.WriteLine(missingPatient != null ? $"  FindById(99) → {missingPatient.FullName}" : "  FindById(99) → не знайдено");
+
+Console.WriteLine();
+Console.WriteLine("Порівняння:");
+Console.WriteLine("  PatientManager:         100 місць (фіксовано)");
+Console.WriteLine($"  GrowablePatientManager:  {growableManager.Capacity} місця (зросте при потребі)");
 
 PatientsMenu(clinic);
 DoctorsMenu(clinic);
