@@ -14,3 +14,23 @@ foreach (var p in patients)
 {
     Console.WriteLine(p);
 }
+
+
+Doctor d1 = new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567");
+d1.WorkStartHour = 8;
+d1.WorkEndHour = 16;
+
+Doctor d2 = new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678");
+d2.WorkStartHour = 9;
+d2.WorkEndHour = 18;
+
+Doctor d3 = new Doctor("Андрій", "Власенко", "Педіатрія");
+
+Doctor d4 = new Doctor();
+
+Doctor[] doctors = { d1, d2, d3, d4 };
+
+foreach (var d in doctors)
+{
+    Console.WriteLine(d);
+}
