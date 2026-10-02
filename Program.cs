@@ -15,9 +15,9 @@ namespace ConsoleApp1
             patientManager.Add(new Patient("Olena Kovalchuk", 45));
             patientManager.Add(new Patient("Mykola Sydorenko", 70, "Hypertension", BloodType.ONegative));
 
-            doctorManager.Add(new Doctor("Petro Ivanenko", Speciality.General, 8, 16));
-            doctorManager.Add(new Doctor("Maria Shevchenko", Speciality.Surgery, 10, 18));
-            doctorManager.Add(new Doctor("Oleg Tkachenko", Speciality.Cardiology, 12, 20));
+            doctorManager.Add(new Doctor("Petro Ivanenko", Speciality.General, new WorkSchedule(8, 16)));
+            doctorManager.Add(new Doctor("Maria Shevchenko", Speciality.Surgery, new WorkSchedule(10, 18)));
+            doctorManager.Add(new Doctor("Oleg Tkachenko", Speciality.Cardiology, new WorkSchedule(12, 20)));
 
             appointmentManager.Book(1, 1, DateTime.Now.AddDays(1));
             appointmentManager.Book(2, 2, DateTime.Now.AddDays(2), 45);
@@ -178,7 +178,7 @@ namespace ConsoleApp1
                         Console.Write("End hour: ");
                         int end = int.Parse(Console.ReadLine());
 
-                        manager.Add(new Doctor(name, spec, start, end));
+                        manager.Add(new Doctor(name, spec, new WorkSchedule(start, end)));
                         Console.WriteLine("Added.");
                         break;
 
