@@ -6,11 +6,12 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             PatientManager patientManager = new PatientManager();
             DoctorManager doctorManager = new DoctorManager();
             AppointmentManager appointmentManager = new AppointmentManager(patientManager, doctorManager);
 
-            // starting data
             patientManager.Add(new Patient("Ivan Petrenko", 34, "Flu", BloodType.APositive));
             patientManager.Add(new Patient("Olena Kovalchuk", 45));
             patientManager.Add(new Patient("Mykola Sydorenko", 70, "Hypertension", BloodType.ONegative));
@@ -21,6 +22,44 @@ namespace ConsoleApp1
 
             appointmentManager.Book(1, 1, DateTime.Now.AddDays(1));
             appointmentManager.Book(2, 2, DateTime.Now.AddDays(2), 45);
+
+            Console.WriteLine("=== Demo: overloads ===");
+            Doctor byEnum = doctorManager.FindBySpeciality(Speciality.Cardiology);
+            Doctor byText = doctorManager.FindBySpeciality("кардіо");
+            Console.WriteLine(byEnum);
+            Console.WriteLine(byText);
+
+            DateTime tomorrow = DateTime.Now.AddDays(1);
+            Appointment[] tomorrowList = appointmentManager.GetByDate(tomorrow.Year, tomorrow.Month, tomorrow.Day);
+            appointmentManager.DisplayList(tomorrowList);
+
+            Console.WriteLine("=== Demo: TryFindById ===");
+            if (patientManager.TryFindById(1, out Patient foundPatient))
+                Console.WriteLine("Found: " + foundPatient.FullName);
+            else
+                Console.WriteLine("Patient not found.");
+
+            Console.WriteLine(patientManager.TryFindById(99, out Patient missingPatient));
+
+            if (doctorManager.TryFindById(2, out Doctor foundDoctor))
+                Console.WriteLine("Found: " + foundDoctor.FullName);
+            else
+                Console.WriteLine("Doctor not found.");
+
+            Console.WriteLine("=== Demo: ?. and ?? ===");
+            string name = patientManager.FindById(99)?.FullName ?? "not found";
+            Console.WriteLine(name);
+            string name2 = patientManager.FindById(1)?.FullName ?? "not found";
+            Console.WriteLine(name2);
+
+            Console.WriteLine("=== Demo: FindByBloodType ===");
+            Patient[] withBlood = patientManager.FindByBloodType(BloodType.APositive);
+            Console.WriteLine(withBlood.Length);
+
+            Console.WriteLine("=== Demo: indexers ===");
+            Console.WriteLine(patientManager[0]);
+            Console.WriteLine(doctorManager[1]);
+            Console.WriteLine(patientManager[999] == null);
 
             bool running = true;
 
@@ -74,6 +113,7 @@ namespace ConsoleApp1
                 Console.WriteLine("3. Find by name");
                 Console.WriteLine("4. Remove");
                 Console.WriteLine("5. Statistics");
+                Console.WriteLine("6. Find by blood type");
                 Console.WriteLine("0. Back");
                 Console.Write("Choose: ");
 
@@ -95,7 +135,7 @@ namespace ConsoleApp1
 
                         Console.WriteLine("Blood type:");
                         for (int i = 0; i < 9; i++)
-                            Console.WriteLine(i + ". " + (BloodType)i);
+                            Console.WriteLine(i + ". " + ClinicFormatter.FormatBloodType((BloodType)i));
                         Console.Write("Choose: ");
                         BloodType blood = (BloodType)int.Parse(Console.ReadLine());
 
@@ -126,6 +166,22 @@ namespace ConsoleApp1
 
                     case "5":
                         manager.Statistics();
+                        break;
+
+                    case "6":
+                        Console.WriteLine("Blood type:");
+                        for (int i = 0; i < 9; i++)
+                            Console.WriteLine(i + ". " + ClinicFormatter.FormatBloodType((BloodType)i));
+                        Console.Write("Choose: ");
+                        BloodType bt = (BloodType)int.Parse(Console.ReadLine());
+
+                        Patient[] list = manager.FindByBloodType(bt);
+
+                        if (list.Length == 0)
+                            Console.WriteLine("Not found.");
+                        else
+                            foreach (var p in list)
+                                Console.WriteLine(p);
                         break;
 
                     case "0":
@@ -169,7 +225,7 @@ namespace ConsoleApp1
 
                         Console.WriteLine("Speciality:");
                         for (int i = 0; i < 8; i++)
-                            Console.WriteLine(i + ". " + (Speciality)i);
+                            Console.WriteLine(i + ". " + ClinicFormatter.FormatSpeciality((Speciality)i));
                         Console.Write("Choose: ");
                         Speciality spec = (Speciality)int.Parse(Console.ReadLine());
 

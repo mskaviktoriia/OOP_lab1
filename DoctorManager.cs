@@ -43,15 +43,31 @@ namespace ConsoleApp1
             }
         }
 
-        public Doctor FindBySpeciality(string speciality)
+        public Doctor FindBySpeciality(string query)
         {
             for (int i = 0; i < count; i++)
             {
-                if (doctors[i].Specialty.ToString().ToLower().Contains(speciality.ToLower()))
+                if (ClinicFormatter.FormatSpeciality(doctors[i].Specialty).ToLower().Contains(query.ToLower()))
                     return doctors[i];
             }
 
             return null;
+        }
+        public Doctor FindBySpeciality(Speciality speciality)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (doctors[i].Specialty == speciality)
+                    return doctors[i];
+            }
+
+            return null;
+        }
+
+        public bool TryFindById(int id, out Doctor doctor)
+        {
+            doctor = FindById(id);
+            return doctor != null;
         }
 
         public bool Remove(int id)

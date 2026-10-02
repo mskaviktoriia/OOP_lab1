@@ -86,6 +86,33 @@ namespace ConsoleApp1
 
             return true;
         }
+        public bool TryFindById(int id, out Patient patient)
+        {
+            patient = FindById(id);
+            return patient != null;
+        }
+
+        public Patient[] FindByBloodType(BloodType bloodType)
+        {
+            int n = 0;
+            for (int i = 0; i < count; i++)
+                if (patients[i].BloodType == bloodType)
+                    n++;
+
+            Patient[] result = new Patient[n];
+            int idx = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (patients[i].BloodType == bloodType)
+                {
+                    result[idx] = patients[i];
+                    idx++;
+                }
+            }
+
+            return result;
+        }
 
         // stats
         public void Statistics()

@@ -161,7 +161,10 @@ namespace ConsoleApp1
 
             return result;
         }
-
+        public Appointment[] GetByDate(int year, int month, int day)
+        {
+            return GetByDate(new DateTime(year, month, day));
+        }
         public Appointment[] GetUpcoming()
         {
             int n = 0;
