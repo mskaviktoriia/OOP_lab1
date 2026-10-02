@@ -4,19 +4,18 @@ namespace ConsoleApp1
 {
     public class Appointment
     {
-        private static int _nextId = 1; // id counter
+        private static int _nextId = 1;
 
         public int Id { get; }
         public int PatientId { get; }
         public int DoctorId { get; }
         public DateTime ScheduledAt { get; set; }
         public int DurationMinutes { get; set; }
-        public string Status { get; private set; } // Scheduled, Cancelled, Completed
+        public AppointmentStatus Status { get; private set; }
         public string Notes { get; private set; }
 
-        // computed properties
         public DateTime EndsAt => ScheduledAt.AddMinutes(DurationMinutes);
-        public bool IsUpcoming => ScheduledAt > DateTime.Now && Status == "Scheduled";
+        public bool IsUpcoming => ScheduledAt > DateTime.Now && Status == AppointmentStatus.Scheduled;
 
         public Appointment(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
         {
@@ -25,30 +24,28 @@ namespace ConsoleApp1
             DoctorId = doctorId;
             ScheduledAt = scheduledAt;
             DurationMinutes = durationMinutes;
-            Status = "Scheduled";
+            Status = AppointmentStatus.Scheduled;
             Notes = "";
         }
 
-        // move Scheduled -> Cancelled
         public bool Cancel(string reason = "")
         {
-            if (Status != "Scheduled")
+            if (Status != AppointmentStatus.Scheduled)
                 return false;
 
-            Status = "Cancelled";
+            Status = AppointmentStatus.Cancelled;
             if (reason.Length > 0)
                 Notes = reason;
 
             return true;
         }
 
-        // move Scheduled -> Completed
         public bool Complete()
         {
-            if (Status != "Scheduled")
+            if (Status != AppointmentStatus.Scheduled)
                 return false;
 
-            Status = "Completed";
+            Status = AppointmentStatus.Completed;
             return true;
         }
 

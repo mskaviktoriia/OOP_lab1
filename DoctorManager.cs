@@ -5,10 +5,9 @@ namespace ConsoleApp1
 {
     public class DoctorManager
     {
-        private Doctor[] doctors = new Doctor[100]; // fixed size array
+        private Doctor[] doctors = new Doctor[100];
         private int count = 0;
 
-        // add new doctor
         public void Add(Doctor d)
         {
             if (count >= doctors.Length)
@@ -21,7 +20,6 @@ namespace ConsoleApp1
             count++;
         }
 
-        // show all doctors
         public void ShowAll()
         {
             if (count == 0)
@@ -36,19 +34,17 @@ namespace ConsoleApp1
             }
         }
 
-        // find by speciality (partial match, case-insensitive)
         public Doctor FindBySpeciality(string speciality)
         {
             for (int i = 0; i < count; i++)
             {
-                if (doctors[i].Specialty.ToLower().Contains(speciality.ToLower()))
+                if (doctors[i].Specialty.ToString().ToLower().Contains(speciality.ToLower()))
                     return doctors[i];
             }
 
             return null;
         }
 
-        // remove by id
         public bool Remove(int id)
         {
             int index = -1;
@@ -76,7 +72,6 @@ namespace ConsoleApp1
             return true;
         }
 
-        // find by id, for AppointmentManager
         public Doctor FindById(int id)
         {
             for (int i = 0; i < count; i++)
@@ -88,7 +83,6 @@ namespace ConsoleApp1
             return null;
         }
 
-        // stats with unique specialities
         public void Statistics()
         {
             if (count == 0)
@@ -101,7 +95,7 @@ namespace ConsoleApp1
 
             for (int i = 0; i < count; i++)
             {
-                string spec = doctors[i].Specialty;
+                string spec = doctors[i].Specialty.ToString();
 
                 if (!uniqueSpecs.Contains(spec))
                     uniqueSpecs.Add(spec);

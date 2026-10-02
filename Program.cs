@@ -11,13 +11,13 @@ namespace ConsoleApp1
             AppointmentManager appointmentManager = new AppointmentManager(patientManager, doctorManager);
 
             // starting data
-            patientManager.Add(new Patient("Ivan Petrenko", 34, "Flu"));
+            patientManager.Add(new Patient("Ivan Petrenko", 34, "Flu", BloodType.APositive));
             patientManager.Add(new Patient("Olena Kovalchuk", 45));
-            patientManager.Add(new Patient("Mykola Sydorenko", 70, "Hypertension"));
+            patientManager.Add(new Patient("Mykola Sydorenko", 70, "Hypertension", BloodType.ONegative));
 
-            doctorManager.Add(new Doctor("Petro Ivanenko", "Therapist", 8, 16));
-            doctorManager.Add(new Doctor("Maria Shevchenko", "Surgeon", 10, 18));
-            doctorManager.Add(new Doctor("Oleg Tkachenko", "Cardiologist", 12, 20));
+            doctorManager.Add(new Doctor("Petro Ivanenko", Speciality.General, 8, 16));
+            doctorManager.Add(new Doctor("Maria Shevchenko", Speciality.Surgery, 10, 18));
+            doctorManager.Add(new Doctor("Oleg Tkachenko", Speciality.Cardiology, 12, 20));
 
             appointmentManager.Book(1, 1, DateTime.Now.AddDays(1));
             appointmentManager.Book(2, 2, DateTime.Now.AddDays(2), 45);
@@ -93,7 +93,13 @@ namespace ConsoleApp1
                         Console.Write("Diagnosis: ");
                         string diag = Console.ReadLine();
 
-                        manager.Add(new Patient(name, age, diag));
+                        Console.WriteLine("Blood type:");
+                        for (int i = 0; i < 9; i++)
+                            Console.WriteLine(i + ". " + (BloodType)i);
+                        Console.Write("Choose: ");
+                        BloodType blood = (BloodType)int.Parse(Console.ReadLine());
+
+                        manager.Add(new Patient(name, age, diag, blood));
                         Console.WriteLine("Added.");
                         break;
 
@@ -160,8 +166,13 @@ namespace ConsoleApp1
                     case "2":
                         Console.Write("Name: ");
                         string name = Console.ReadLine();
-                        Console.Write("Speciality: ");
-                        string spec = Console.ReadLine();
+
+                        Console.WriteLine("Speciality:");
+                        for (int i = 0; i < 8; i++)
+                            Console.WriteLine(i + ". " + (Speciality)i);
+                        Console.Write("Choose: ");
+                        Speciality spec = (Speciality)int.Parse(Console.ReadLine());
+
                         Console.Write("Start hour: ");
                         int start = int.Parse(Console.ReadLine());
                         Console.Write("End hour: ");
