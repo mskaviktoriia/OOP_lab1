@@ -46,8 +46,8 @@ namespace ConsoleApp1
 
         public override string ToString()
         {
-            return "Id=" + Id + ", Name=" + FullName + ", Age=" + Age + ", Diagnosis=" + Diagnosis +
-                ", BloodType=" + BloodType + ", IsAdult=" + IsAdult + ", DaysInClinic=" + DaysInClinic +
+            return "Id=" + Id + ", Name=" + FullName + ", Age=" + ClinicFormatter.FormatAge(Age) + ", Diagnosis=" + Diagnosis +
+                ", BloodType=" + ClinicFormatter.FormatBloodType(BloodType) + ", IsAdult=" + IsAdult + ", DaysInClinic=" + DaysInClinic +
                 ", Category=" + Classify() + ", AdmissionDate=" + AdmissionDate;
         }
     }

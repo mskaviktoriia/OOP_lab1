@@ -7,7 +7,16 @@ namespace ConsoleApp1
     {
         private Doctor[] doctors = new Doctor[100];
         private int count = 0;
+        public Doctor this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= count)
+                    return null;
 
+                return doctors[index];
+            }
+        }
         public void Add(Doctor d)
         {
             if (count >= doctors.Length)

@@ -31,7 +31,7 @@ namespace ConsoleApp1
 
         public override string ToString()
         {
-            return "Id=" + Id + ", Name=" + FullName + ", Specialty=" + Specialty +
+            return "Id=" + Id + ", Name=" + FullName + ", Specialty=" + ClinicFormatter.FormatSpeciality(Specialty) +
                 ", Schedule=" + Schedule;
         }
     }

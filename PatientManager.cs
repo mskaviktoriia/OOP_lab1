@@ -7,6 +7,17 @@ namespace ConsoleApp1
         private Patient[] patients = new Patient[100]; // fixed size array
         private int count = 0;
 
+
+        public Patient this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= count)
+                    return null;
+
+                return patients[index];
+            }
+        }
         // add new patient
         public void Add(Patient p)
         {
