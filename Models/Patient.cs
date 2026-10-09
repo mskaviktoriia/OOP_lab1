@@ -17,13 +17,27 @@ public class Patient
     public string FullName
     {
         get => _fullName;
-        set => _fullName = value;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Ім'я не може бути порожнім.", nameof(FullName));
+            if (value.Length > 100)
+                throw new ArgumentException("Ім'я задовге (максимум 100 символів).", nameof(FullName));
+
+            _fullName = value;
+        }
     }
 
     public int Age
     {
         get => _age;
-        set => _age = value;
+        set
+        {
+            if (value < 0 || value > 150)
+                throw new ArgumentOutOfRangeException(nameof(Age), "Вік має бути від 0 до 150.");
+
+            _age = value;
+        }
     }
 
     public string Diagnosis
@@ -41,12 +55,12 @@ public class Patient
 
     public Patient(string fullName, int age, string diagnosis, BloodType bloodType = BloodType.Unknown)
     {
-        Id = idCounter++;
         FullName = fullName;
         Age = age;
         Diagnosis = diagnosis;
         BloodType = bloodType;
         AdmissionDate = DateTime.Now;
+        Id = idCounter++;
     }
 
     public Patient(string fullName, int age) : this(fullName, age, "Not diagnosed")
