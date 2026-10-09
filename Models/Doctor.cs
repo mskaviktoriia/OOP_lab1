@@ -17,11 +17,7 @@ public class Doctor
         get => _fullName;
         set
         {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Ім'я не може бути порожнім.", nameof(FullName));
-            if (value.Length > 100)
-                throw new ArgumentException("Ім'я задовге (максимум 100 символів).", nameof(FullName));
-
+            ClinicValidator.ValidateName(value, nameof(FullName));
             _fullName = value;
         }
     }
