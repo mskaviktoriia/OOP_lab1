@@ -11,6 +11,7 @@ public class Patient
     private string _fullName = "";
     private int _age;
     private string _diagnosis = "";
+    private string _email = "";
 
     public int Id { get; }
 
@@ -40,6 +41,18 @@ public class Patient
     {
         get => _diagnosis;
         set => _diagnosis = value;
+    }
+
+    public string Email
+    {
+        get => _email;
+        set
+        {
+            if (!string.IsNullOrEmpty(value))
+                ClinicValidator.ValidateEmail(value);
+
+            _email = value ?? "";
+        }
     }
 
     public BloodType BloodType { get; set; }
