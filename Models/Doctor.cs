@@ -8,8 +8,16 @@ public class Doctor
 {
     private static int idCounter = 1;
 
+    private string _fullName = "";
+
     public int Id { get; }
-    public string FullName { get; set; }
+
+    public string FullName
+    {
+        get => _fullName;
+        set => _fullName = value;
+    }
+
     public Speciality Specialty { get; set; }
     public WorkSchedule Schedule { get; set; }
 

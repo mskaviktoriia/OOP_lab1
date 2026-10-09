@@ -8,10 +8,30 @@ public class Patient
 {
     private static int idCounter = 1;
 
+    private string _fullName = "";
+    private int _age;
+    private string _diagnosis = "";
+
     public int Id { get; }
-    public string FullName { get; set; }
-    public int Age { get; set; }
-    public string Diagnosis { get; set; }
+
+    public string FullName
+    {
+        get => _fullName;
+        set => _fullName = value;
+    }
+
+    public int Age
+    {
+        get => _age;
+        set => _age = value;
+    }
+
+    public string Diagnosis
+    {
+        get => _diagnosis;
+        set => _diagnosis = value;
+    }
+
     public BloodType BloodType { get; set; }
     public DateTime AdmissionDate { get; }
 
