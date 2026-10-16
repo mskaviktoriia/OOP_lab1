@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using ClinicApp.Enums;
 using ClinicApp.Models;
 using ClinicApp.Utils;
@@ -119,22 +118,33 @@ public class DoctorManager
             return;
         }
 
-        List<string> uniqueSpecs = new List<string>();
+        string[] uniqueSpecs = new string[count];
+        int uniqueCount = 0;
 
         for (int i = 0; i < count; i++)
         {
             string spec = doctors[i].Specialty.ToString();
+            bool exists = false;
 
-            if (!uniqueSpecs.Contains(spec))
-                uniqueSpecs.Add(spec);
+            for (int j = 0; j < uniqueCount; j++)
+            {
+                if (uniqueSpecs[j] == spec)
+                    exists = true;
+            }
+
+            if (!exists)
+            {
+                uniqueSpecs[uniqueCount] = spec;
+                uniqueCount++;
+            }
         }
 
         Console.WriteLine("Total doctors: " + count);
-        Console.WriteLine("Unique specialities: " + uniqueSpecs.Count);
+        Console.WriteLine("Unique specialities: " + uniqueCount);
 
-        foreach (var s in uniqueSpecs)
+        for (int i = 0; i < uniqueCount; i++)
         {
-            Console.WriteLine("- " + s);
+            Console.WriteLine("- " + uniqueSpecs[i]);
         }
     }
 
