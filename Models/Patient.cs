@@ -8,32 +8,52 @@ public class Patient
 {
     private static int idCounter = 1;
 
-    private string _fullName = "";
-    private int _age;
+    private string _firstName = "";
+    private string _lastName = "";
+    private DateTime _dateOfBirth;
+    private string _phone = "";
     private string _diagnosis = "";
     private string _email = "";
 
     public int Id { get; }
 
-    public string FullName
+    public string FirstName
     {
-        get => _fullName;
+        get => _firstName;
         set
         {
-            ClinicValidator.ValidateName(value, nameof(FullName));
-            _fullName = value;
+            ClinicValidator.ValidateName(value, nameof(FirstName));
+            _firstName = value;
         }
     }
 
-    public int Age
+    public string LastName
     {
-        get => _age;
+        get => _lastName;
         set
         {
-            if (value < 0 || value > 150)
-                throw new ArgumentOutOfRangeException(nameof(Age), "Вік має бути від 0 до 150.");
+            ClinicValidator.ValidateName(value, nameof(LastName));
+            _lastName = value;
+        }
+    }
 
-            _age = value;
+    public DateTime DateOfBirth
+    {
+        get => _dateOfBirth;
+        set
+        {
+            ClinicValidator.ValidateDate(value, nameof(DateOfBirth));
+            _dateOfBirth = value;
+        }
+    }
+
+    public string Phone
+    {
+        get => _phone;
+        set
+        {
+            ClinicValidator.ValidatePhone(value);
+            _phone = value;
         }
     }
 
@@ -58,26 +78,33 @@ public class Patient
     public BloodType BloodType { get; set; }
     public DateTime AdmissionDate { get; }
 
+    public string FullName => FirstName + " " + LastName;
+
+    public int Age
+    {
+        get
+        {
+            int age = DateTime.Today.Year - DateOfBirth.Year;
+            if (DateOfBirth.Date > DateTime.Today.AddYears(-age)) age--;
+            return age;
+        }
+    }
+
     public bool IsAdult => Age >= 18;
     public int DaysInClinic => (DateTime.Now - AdmissionDate).Days;
     public string ShortInfo => $"#{Id} {FullName} ({Age} y.o.)";
 
-    public Patient(string fullName, int age, string diagnosis, BloodType bloodType = BloodType.Unknown)
+    public Patient(string firstName, string lastName, DateTime dateOfBirth, string phone, string diagnosis = "Not diagnosed", BloodType bloodType = BloodType.Unknown)
     {
-        FullName = fullName;
-        Age = age;
+        FirstName = firstName;
+        LastName = lastName;
+        DateOfBirth = dateOfBirth;
+        Phone = phone;
         Diagnosis = diagnosis;
         BloodType = bloodType;
         AdmissionDate = DateTime.Now;
+
         Id = idCounter++;
-    }
-
-    public Patient(string fullName, int age) : this(fullName, age, "Not diagnosed")
-    {
-    }
-
-    public Patient() : this("Unknown", 0)
-    {
     }
 
 
@@ -92,8 +119,8 @@ public class Patient
 
     public override string ToString()
     {
-        return "Id=" + Id + ", Name=" + FullName + ", Age=" + ClinicFormatter.FormatAge(Age) + ", Diagnosis=" + Diagnosis +
-            ", BloodType=" + ClinicFormatter.FormatBloodType(BloodType) + ", IsAdult=" + IsAdult + ", DaysInClinic=" + DaysInClinic +
-            ", Category=" + Classify() + ", AdmissionDate=" + AdmissionDate;
+        return "Id=" + Id + ", Name=" + FullName + ", Age=" + ClinicFormatter.FormatAge(Age) + ", Phone=" + ClinicFormatter.FormatPhone(Phone) +
+            ", Diagnosis=" + Diagnosis + ", BloodType=" + ClinicFormatter.FormatBloodType(BloodType) + ", IsAdult=" + IsAdult +
+            ", DaysInClinic=" + DaysInClinic + ", Category=" + Classify() + ", AdmissionDate=" + AdmissionDate;
     }
 }

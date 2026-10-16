@@ -14,13 +14,13 @@ class Program
         DoctorManager doctorManager = new DoctorManager();
         AppointmentManager appointmentManager = new AppointmentManager(patientManager, doctorManager);
 
-        patientManager.Add(new Patient("Ivan Petrenko", 34, "Flu", BloodType.APositive));
-        patientManager.Add(new Patient("Olena Kovalchuk", 45));
-        patientManager.Add(new Patient("Mykola Sydorenko", 70, "Hypertension", BloodType.ONegative));
+        patientManager.Add(new Patient("Ivan", "Petrenko", new DateTime(1992, 3, 14), "0501234567", "Flu", BloodType.APositive));
+        patientManager.Add(new Patient("Olena", "Kovalchuk", new DateTime(1981, 7, 2), "0671112233"));
+        patientManager.Add(new Patient("Mykola", "Sydorenko", new DateTime(1956, 11, 23), "0939998877", "Hypertension", BloodType.ONegative));
 
-        doctorManager.Add(new Doctor("Petro Ivanenko", Speciality.General, new WorkSchedule(8, 16)));
-        doctorManager.Add(new Doctor("Maria Shevchenko", Speciality.Surgery, new WorkSchedule(10, 18)));
-        doctorManager.Add(new Doctor("Oleg Tkachenko", Speciality.Cardiology, new WorkSchedule(12, 20)));
+        doctorManager.Add(new Doctor("Petro", "Ivanenko", "AA-1001", "0504445566", Speciality.General, new WorkSchedule(8, 16)));
+        doctorManager.Add(new Doctor("Maria", "Shevchenko", "AA-1002", "0507778899", Speciality.Surgery, new WorkSchedule(10, 18)));
+        doctorManager.Add(new Doctor("Oleg", "Tkachenko", "AA-1003", "0631234321", Speciality.Cardiology, new WorkSchedule(12, 20)));
 
         appointmentManager.Book(1, 1, DateTime.Now.AddDays(1));
         appointmentManager.Book(2, 2, DateTime.Now.AddDays(2), 45);
@@ -62,6 +62,46 @@ class Program
         Console.WriteLine(patientManager[0]);
         Console.WriteLine(doctorManager[1]);
         Console.WriteLine(patientManager[999] == null);
+
+        Console.WriteLine("=== Demo: validation ===");
+        try
+        {
+            Patient bad = new Patient("", "Petrenko", new DateTime(1990, 1, 1), "0501234567");
+        }
+        catch (ArgumentOutOfRangeException e)
+        {
+            Console.WriteLine("Помилка: " + e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine("Помилка: " + e.Message);
+        }
+
+        try
+        {
+            Patient bad2 = new Patient("Test", "Test", DateTime.Today.AddDays(1), "0501234567");
+        }
+        catch (ArgumentOutOfRangeException e)
+        {
+            Console.WriteLine("Помилка: " + e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine("Помилка: " + e.Message);
+        }
+
+        try
+        {
+            WorkSchedule badSchedule = new WorkSchedule(20, 6);
+        }
+        catch (ArgumentOutOfRangeException e)
+        {
+            Console.WriteLine("Помилка: " + e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine("Помилка: " + e.Message);
+        }
 
         bool running = true;
 
@@ -128,21 +168,45 @@ class Program
                     break;
 
                 case "2":
-                    Console.Write("Name: ");
-                    string name = Console.ReadLine();
-                    Console.Write("Age: ");
-                    int age = int.Parse(Console.ReadLine());
-                    Console.Write("Diagnosis: ");
-                    string diag = Console.ReadLine();
+                    try
+                    {
+                        Console.Write("First name: ");
+                        string firstName = Console.ReadLine();
+                        Console.Write("Last name: ");
+                        string lastName = Console.ReadLine();
+                        Console.Write("Date of birth (dd.MM.yyyy): ");
+                        DateTime dob = DateTime.Parse(Console.ReadLine());
+                        Console.Write("Phone (10 digits): ");
+                        string phone = Console.ReadLine();
+                        Console.Write("Diagnosis: ");
+                        string diag = Console.ReadLine();
 
-                    Console.WriteLine("Blood type:");
-                    for (int i = 0; i < 9; i++)
-                        Console.WriteLine(i + ". " + ClinicFormatter.FormatBloodType((BloodType)i));
-                    Console.Write("Choose: ");
-                    BloodType blood = (BloodType)int.Parse(Console.ReadLine());
+                        Console.WriteLine("Blood type:");
+                        for (int i = 0; i < 9; i++)
+                            Console.WriteLine(i + ". " + ClinicFormatter.FormatBloodType((BloodType)i));
+                        Console.Write("Choose: ");
+                        int bloodNum = int.Parse(Console.ReadLine());
 
-                    manager.Add(new Patient(name, age, diag, blood));
-                    Console.WriteLine("Added.");
+                        if (!Enum.IsDefined(typeof(BloodType), bloodNum))
+                            throw new ArgumentOutOfRangeException("BloodType", "Невідома група крові.");
+
+                        BloodType blood = (BloodType)bloodNum;
+
+                        manager.Add(new Patient(firstName, lastName, dob, phone, diag, blood));
+                        Console.WriteLine("Added.");
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "3":
@@ -157,13 +221,20 @@ class Program
                     break;
 
                 case "4":
-                    Console.Write("Id to remove: ");
-                    int id = int.Parse(Console.ReadLine());
+                    try
+                    {
+                        Console.Write("Id to remove: ");
+                        int id = int.Parse(Console.ReadLine());
 
-                    if (manager.Remove(id))
-                        Console.WriteLine("Removed.");
-                    else
-                        Console.WriteLine("Not found.");
+                        if (manager.Remove(id))
+                            Console.WriteLine("Removed.");
+                        else
+                            Console.WriteLine("Not found.");
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "5":
@@ -171,19 +242,32 @@ class Program
                     break;
 
                 case "6":
-                    Console.WriteLine("Blood type:");
-                    for (int i = 0; i < 9; i++)
-                        Console.WriteLine(i + ". " + ClinicFormatter.FormatBloodType((BloodType)i));
-                    Console.Write("Choose: ");
-                    BloodType bt = (BloodType)int.Parse(Console.ReadLine());
+                    try
+                    {
+                        Console.WriteLine("Blood type:");
+                        for (int i = 0; i < 9; i++)
+                            Console.WriteLine(i + ". " + ClinicFormatter.FormatBloodType((BloodType)i));
+                        Console.Write("Choose: ");
+                        int btNum = int.Parse(Console.ReadLine());
 
-                    Patient[] list = manager.FindByBloodType(bt);
+                        if (!Enum.IsDefined(typeof(BloodType), btNum))
+                        {
+                            Console.WriteLine("Помилка: невідома група крові.");
+                            break;
+                        }
 
-                    if (list.Length == 0)
-                        Console.WriteLine("Not found.");
-                    else
-                        foreach (var p in list)
-                            Console.WriteLine(p);
+                        Patient[] list = manager.FindByBloodType((BloodType)btNum);
+
+                        if (list.Length == 0)
+                            Console.WriteLine("Not found.");
+                        else
+                            foreach (var p in list)
+                                Console.WriteLine(p);
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "0":
@@ -222,22 +306,50 @@ class Program
                     break;
 
                 case "2":
-                    Console.Write("Name: ");
-                    string name = Console.ReadLine();
+                    try
+                    {
+                        Console.Write("First name: ");
+                        string firstName = Console.ReadLine();
+                        Console.Write("Last name: ");
+                        string lastName = Console.ReadLine();
+                        Console.Write("License number: ");
+                        string license = Console.ReadLine();
+                        Console.Write("Phone (10 digits): ");
+                        string phone = Console.ReadLine();
 
-                    Console.WriteLine("Speciality:");
-                    for (int i = 0; i < 8; i++)
-                        Console.WriteLine(i + ". " + ClinicFormatter.FormatSpeciality((Speciality)i));
-                    Console.Write("Choose: ");
-                    Speciality spec = (Speciality)int.Parse(Console.ReadLine());
+                        Console.WriteLine("Speciality:");
+                        for (int i = 0; i < 8; i++)
+                            Console.WriteLine(i + ". " + ClinicFormatter.FormatSpeciality((Speciality)i));
+                        Console.Write("Choose: ");
+                        int specNum = int.Parse(Console.ReadLine());
 
-                    Console.Write("Start hour: ");
-                    int start = int.Parse(Console.ReadLine());
-                    Console.Write("End hour: ");
-                    int end = int.Parse(Console.ReadLine());
+                        if (!Enum.IsDefined(typeof(Speciality), specNum))
+                            throw new ArgumentOutOfRangeException("Speciality", "Невідома спеціальність.");
 
-                    manager.Add(new Doctor(name, spec, new WorkSchedule(start, end)));
-                    Console.WriteLine("Added.");
+                        Speciality spec = (Speciality)specNum;
+
+                        Console.Write("Start hour: ");
+                        int start = int.Parse(Console.ReadLine());
+                        Console.Write("End hour: ");
+                        int end = int.Parse(Console.ReadLine());
+
+                        WorkSchedule schedule = new WorkSchedule(start, end);
+
+                        manager.Add(new Doctor(firstName, lastName, license, phone, spec, schedule));
+                        Console.WriteLine("Added.");
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "3":
@@ -252,13 +364,20 @@ class Program
                     break;
 
                 case "4":
-                    Console.Write("Id to remove: ");
-                    int id = int.Parse(Console.ReadLine());
+                    try
+                    {
+                        Console.Write("Id to remove: ");
+                        int id = int.Parse(Console.ReadLine());
 
-                    if (manager.Remove(id))
-                        Console.WriteLine("Removed.");
-                    else
-                        Console.WriteLine("Not found.");
+                        if (manager.Remove(id))
+                            Console.WriteLine("Removed.");
+                        else
+                            Console.WriteLine("Not found.");
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "5":
@@ -299,62 +418,112 @@ class Program
             switch (choice)
             {
                 case "1":
-                    Console.WriteLine("Patients:");
-                    patients.ShowAll();
-                    Console.WriteLine("Doctors:");
-                    doctors.ShowAll();
+                    try
+                    {
+                        Console.WriteLine("Patients:");
+                        patients.ShowAll();
+                        Console.WriteLine("Doctors:");
+                        doctors.ShowAll();
 
-                    Console.Write("Patient id: ");
-                    int pid = int.Parse(Console.ReadLine());
-                    Console.Write("Doctor id: ");
-                    int did = int.Parse(Console.ReadLine());
-                    Console.Write("Date and time (dd.MM.yyyy HH:mm): ");
-                    DateTime dt = DateTime.Parse(Console.ReadLine());
-                    Console.Write("Duration minutes (empty = 30): ");
-                    string durStr = Console.ReadLine();
-                    int dur = durStr.Length > 0 ? int.Parse(durStr) : 30;
+                        Console.Write("Patient id: ");
+                        int pid = int.Parse(Console.ReadLine());
+                        Console.Write("Doctor id: ");
+                        int did = int.Parse(Console.ReadLine());
+                        Console.Write("Date and time (dd.MM.yyyy HH:mm): ");
+                        DateTime dt = DateTime.Parse(Console.ReadLine());
+                        Console.Write("Duration minutes (empty = 30): ");
+                        string durStr = Console.ReadLine();
+                        int dur = durStr.Length > 0 ? int.Parse(durStr) : 30;
 
-                    manager.Book(pid, did, dt, dur);
+                        manager.Book(pid, did, dt, dur);
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "2":
-                    Console.Write("Appointment id: ");
-                    int cancelId = int.Parse(Console.ReadLine());
-                    Console.Write("Reason (empty = none): ");
-                    string reason = Console.ReadLine();
+                    try
+                    {
+                        Console.Write("Appointment id: ");
+                        int cancelId = int.Parse(Console.ReadLine());
+                        Console.Write("Reason (empty = none): ");
+                        string reason = Console.ReadLine();
 
-                    if (manager.Cancel(cancelId, reason))
-                        Console.WriteLine("Appointment [" + cancelId + "] cancelled.");
-                    else
-                        Console.WriteLine("Not found or already final.");
+                        if (manager.Cancel(cancelId, reason))
+                            Console.WriteLine("Appointment [" + cancelId + "] cancelled.");
+                        else
+                            Console.WriteLine("Not found or already final.");
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "3":
-                    Console.Write("Appointment id: ");
-                    int compId = int.Parse(Console.ReadLine());
+                    try
+                    {
+                        Console.Write("Appointment id: ");
+                        int compId = int.Parse(Console.ReadLine());
 
-                    if (manager.Complete(compId))
-                        Console.WriteLine("Appointment [" + compId + "] completed.");
-                    else
-                        Console.WriteLine("Not found or already final.");
+                        if (manager.Complete(compId))
+                            Console.WriteLine("Appointment [" + compId + "] completed.");
+                        else
+                            Console.WriteLine("Not found or already final.");
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "4":
-                    Console.Write("Patient id: ");
-                    int byPatientId = int.Parse(Console.ReadLine());
-                    manager.DisplayList(manager.GetByPatient(byPatientId));
+                    try
+                    {
+                        Console.Write("Patient id: ");
+                        int byPatientId = int.Parse(Console.ReadLine());
+                        manager.DisplayList(manager.GetByPatient(byPatientId));
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "5":
-                    Console.Write("Doctor id: ");
-                    int byDoctorId = int.Parse(Console.ReadLine());
-                    manager.DisplayList(manager.GetByDoctor(byDoctorId));
+                    try
+                    {
+                        Console.Write("Doctor id: ");
+                        int byDoctorId = int.Parse(Console.ReadLine());
+                        manager.DisplayList(manager.GetByDoctor(byDoctorId));
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "6":
-                    Console.Write("Date (dd.MM.yyyy): ");
-                    DateTime date = DateTime.Parse(Console.ReadLine());
-                    manager.DisplayList(manager.GetByDate(date));
+                    try
+                    {
+                        Console.Write("Date (dd.MM.yyyy): ");
+                        DateTime date = DateTime.Parse(Console.ReadLine());
+                        manager.DisplayList(manager.GetByDate(date));
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Помилка: неправильний формат введення.");
+                    }
                     break;
 
                 case "7":
