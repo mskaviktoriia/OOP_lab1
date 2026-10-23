@@ -94,6 +94,16 @@ public class AppointmentManager
         return a.Complete();
     }
 
+    public Appointment[] GetAll()
+    {
+        Appointment[] result = new Appointment[_count];
+
+        for (int i = 0; i < _count; i++)
+            result[i] = _appointments[i];
+
+        return result;
+    }
+
     public Appointment[] GetByPatient(int patientId)
     {
         int n = 0;
