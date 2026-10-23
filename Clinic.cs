@@ -9,6 +9,7 @@ public class Clinic
     public DoctorManager Doctors { get; }
     public AppointmentManager Appointments { get; }
     public MedicalRecordManager MedicalRecords { get; }
+    public BillingManager Billing { get; }
 
     public Clinic()
     {
@@ -16,6 +17,7 @@ public class Clinic
         Doctors = new DoctorManager();
         Appointments = new AppointmentManager(Patients, Doctors);
         MedicalRecords = new MedicalRecordManager();
+        Billing = new BillingManager(Appointments);
     }
 
     public void Report()
@@ -25,5 +27,6 @@ public class Clinic
         Console.WriteLine("Doctors: " + Doctors.Count);
         Console.WriteLine("Appointments: " + Appointments.Count);
         Console.WriteLine("Medical records: " + MedicalRecords.Count);
+        Console.WriteLine("Total debt: " + Billing.GetTotalDebt().ToString("F2") + " грн");
     }
 }
