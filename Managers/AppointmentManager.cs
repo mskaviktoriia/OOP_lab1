@@ -34,6 +34,25 @@ public class AppointmentManager
 
     public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
     {
+        return Register(new RegularAppointment(patientId, doctorId, scheduledAt, durationMinutes));
+    }
+
+    public bool BookUrgent(int patientId, int doctorId, DateTime scheduledAt, string urgencyNote = "", int durationMinutes = 30)
+    {
+        return Register(new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes));
+    }
+
+    public bool BookSpecialist(int patientId, int doctorId, DateTime scheduledAt, string topic = "", int durationMinutes = 45)
+    {
+        return Register(new SpecialistAppointment(patientId, doctorId, scheduledAt, topic, durationMinutes));
+    }
+
+    private bool Register(Appointment a)
+    {
+        int patientId = a.PatientId;
+        int doctorId = a.DoctorId;
+        DateTime scheduledAt = a.ScheduledAt;
+
         Patient p = _patients.FindById(patientId);
         if (p == null)
         {
@@ -54,7 +73,6 @@ public class AppointmentManager
             return false;
         }
 
-        Appointment a = new Appointment(patientId, doctorId, scheduledAt, durationMinutes);
         _appointments[_count] = a;
         _count++;
 

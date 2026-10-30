@@ -32,6 +32,8 @@ class Program
 
         appointmentManager.Book(1, 1, DateTime.Now.AddDays(1));
         appointmentManager.Book(2, 2, DateTime.Now.AddDays(2), 45);
+        appointmentManager.BookUrgent(3, 3, DateTime.Today.AddDays(3).AddHours(13), "біль у грудях");
+        appointmentManager.BookSpecialist(1, 3, DateTime.Today.AddDays(4).AddHours(14), "кардіологія", 60);
 
         MedicalRecordManager recordManager = clinic.MedicalRecords;
 
@@ -121,6 +123,29 @@ class Program
         {
             Console.WriteLine("Помилка: " + e.Message);
         }
+
+        Console.WriteLine("== new vs override ==");
+
+        UrgentAppointment urgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(5).AddHours(10), "тест");
+        Appointment viaBase = urgent;
+
+        Console.WriteLine("Через Appointment:       " + viaBase.GetDescription() + " | пріоритет " + viaBase.GetPriority());
+        Console.WriteLine("Через UrgentAppointment: " + urgent.GetDescription() + " | пріоритет " + urgent.GetPriority());
+
+        // 1. Чому GetDescription() через змінну типу Appointment дає опис термінового прийому?
+        //    GetDescription() в Appointment оголошений як virtual, а в UrgentAppointment
+        //    перевизначений через override. Для таких методів реалізацію обирає CLR
+        //    під час виконання за типом ОБ'ЄКТА (UrgentAppointment), а не за типом змінної.
+        //
+        // 2. Чому GetPriority() через ту саму змінну повертає 3, хоча об'єкт — UrgentAppointment?
+        //    GetPriority() в Appointment не virtual, а в UrgentAppointment він лише прихований
+        //    через new. Приховування — не перевизначення: метод обирається ще під час компіляції
+        //    за типом ЗМІННОЇ. Змінна типу Appointment бачить метод батька, тому результат 3.
+        //
+        // 3. Що змінити, щоб GetPriority() теж працював поліморфно?
+        //    В Appointment: public virtual int GetPriority().
+        //    В UrgentAppointment: public override int GetPriority() замість public new int GetPriority().
+        //    Тоді обидві змінні повернуть 1.
 
         bool running = true;
 
