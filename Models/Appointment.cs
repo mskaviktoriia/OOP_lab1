@@ -11,6 +11,7 @@ public class Appointment : IPayable, ICancellable
 
     private int _durationMinutes;
     private bool _isPaid;
+    private decimal _discountMultiplier = 1m;
 
     public int Id { get; }
     public int PatientId { get; }
@@ -49,9 +50,26 @@ public class Appointment : IPayable, ICancellable
         Id = _nextId++;
     }
 
+    // Обрано варіант А: множник знижки живе в базовому класі Appointment.
+    // Чому: одна властивість працює для всіх типів одразу (і для майбутніх також),
+    // підкласи не змінюються — їхній base.GetCost() уже містить знижку, тож
+    // VIP-терміновий = (база × 0.8) × 1.5, VIP-консультація = (база × 0.8) × 1.3.
+    // Нові підкласи (VIP, дитячий, пенсійний тариф) не потрібні — це Open/Closed.
+    public decimal DiscountMultiplier
+    {
+        get => _discountMultiplier;
+        set
+        {
+            if (value <= 0m || value > 1m)
+                throw new ArgumentOutOfRangeException(nameof(DiscountMultiplier), "Множник знижки має бути в межах (0; 1].");
+
+            _discountMultiplier = value;
+        }
+    }
+
     public virtual decimal GetCost()
     {
-        return DurationMinutes * 10m;
+        return DurationMinutes * 10m * DiscountMultiplier;
     }
 
     public virtual string GetDescription()
