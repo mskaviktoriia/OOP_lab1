@@ -11,6 +11,7 @@ public class Appointment : IPayable, ICancellable
 
     private int _durationMinutes;
     private bool _isPaid;
+    private decimal _discountMultiplier = 1m;
 
     public int Id { get; }
     public int PatientId { get; }
@@ -49,9 +50,36 @@ public class Appointment : IPayable, ICancellable
         Id = _nextId++;
     }
 
-    public decimal GetCost()
+    // Обрано варіант А: множник знижки живе в базовому класі Appointment.
+    // Чому: одна властивість працює для всіх типів одразу (і для майбутніх також),
+    // підкласи не змінюються — їхній base.GetCost() уже містить знижку, тож
+    // VIP-терміновий = (база × 0.8) × 1.5, VIP-консультація = (база × 0.8) × 1.3.
+    // Нові підкласи (VIP, дитячий, пенсійний тариф) не потрібні — це Open/Closed.
+    public decimal DiscountMultiplier
     {
-        return DurationMinutes * 10m;
+        get => _discountMultiplier;
+        set
+        {
+            if (value <= 0m || value > 1m)
+                throw new ArgumentOutOfRangeException(nameof(DiscountMultiplier), "Множник знижки має бути в межах (0; 1].");
+
+            _discountMultiplier = value;
+        }
+    }
+
+    public virtual decimal GetCost()
+    {
+        return DurationMinutes * 10m * DiscountMultiplier;
+    }
+
+    public virtual string GetDescription()
+    {
+        return "Прийом";
+    }
+
+    public int GetPriority()
+    {
+        return 3;
     }
 
     public void MarkPaid()
@@ -86,12 +114,14 @@ public class Appointment : IPayable, ICancellable
 
     public override string ToString()
     {
-        string result = "[" + Id + "] Patient #" + PatientId + " -> Doctor #" + DoctorId +
-            " | " + ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "-" + EndsAt.ToString("HH:mm") +
+        string result = "[" + Id + "] " + GetDescription() + " | Пацієнт #" + PatientId + " → Лікар #" + DoctorId +
+            " | " + ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "–" + EndsAt.ToString("HH:mm") +
             " | " + Status;
 
         if (Notes.Length > 0)
             result += " | " + Notes;
+
+        result += " | " + GetCost().ToString("F2") + " грн";
 
         return result;
     }

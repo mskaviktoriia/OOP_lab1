@@ -34,6 +34,25 @@ public class AppointmentManager
 
     public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
     {
+        return Register(new RegularAppointment(patientId, doctorId, scheduledAt, durationMinutes));
+    }
+
+    public bool BookUrgent(int patientId, int doctorId, DateTime scheduledAt, string urgencyNote = "", int durationMinutes = 30)
+    {
+        return Register(new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes));
+    }
+
+    public bool BookSpecialist(int patientId, int doctorId, DateTime scheduledAt, string topic = "", int durationMinutes = 45)
+    {
+        return Register(new SpecialistAppointment(patientId, doctorId, scheduledAt, topic, durationMinutes));
+    }
+
+    private bool Register(Appointment a)
+    {
+        int patientId = a.PatientId;
+        int doctorId = a.DoctorId;
+        DateTime scheduledAt = a.ScheduledAt;
+
         Patient p = _patients.FindById(patientId);
         if (p == null)
         {
@@ -54,7 +73,6 @@ public class AppointmentManager
             return false;
         }
 
-        Appointment a = new Appointment(patientId, doctorId, scheduledAt, durationMinutes);
         _appointments[_count] = a;
         _count++;
 
@@ -209,6 +227,72 @@ public class AppointmentManager
         return result;
     }
 
+    public Appointment[] GetUrgent()
+    {
+        int n = 0;
+        for (int i = 0; i < _count; i++)
+            if (_appointments[i] is UrgentAppointment)
+                n++;
+
+        Appointment[] result = new Appointment[n];
+        int idx = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_appointments[i] is UrgentAppointment)
+            {
+                result[idx] = _appointments[i];
+                idx++;
+            }
+        }
+
+        return result;
+    }
+
+    public Appointment[] GetSpecialist()
+    {
+        int n = 0;
+        for (int i = 0; i < _count; i++)
+            if (_appointments[i] is SpecialistAppointment)
+                n++;
+
+        Appointment[] result = new Appointment[n];
+        int idx = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_appointments[i] is SpecialistAppointment)
+            {
+                result[idx] = _appointments[i];
+                idx++;
+            }
+        }
+
+        return result;
+    }
+
+    public Appointment[] GetRegular()
+    {
+        int n = 0;
+        for (int i = 0; i < _count; i++)
+            if (_appointments[i] is RegularAppointment)
+                n++;
+
+        Appointment[] result = new Appointment[n];
+        int idx = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_appointments[i] is RegularAppointment)
+            {
+                result[idx] = _appointments[i];
+                idx++;
+            }
+        }
+
+        return result;
+    }
+
     public void DisplayAppointment(Appointment a)
     {
         Patient p = _patients.FindById(a.PatientId);
@@ -217,12 +301,14 @@ public class AppointmentManager
         string patientName = p != null ? p.FullName : "Patient #" + a.PatientId;
         string doctorName = d != null ? d.FullName : "Doctor #" + a.DoctorId;
 
-        string line = "[" + a.Id + "] " + patientName + " -> " + doctorName +
-            " | " + a.ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "-" + a.EndsAt.ToString("HH:mm") +
+        string line = "[" + a.Id + "] " + a.GetDescription() + " | " + patientName + " → " + doctorName +
+            " | " + a.ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "–" + a.EndsAt.ToString("HH:mm") +
             " | " + a.Status;
 
         if (a.Notes.Length > 0)
             line += " | " + a.Notes;
+
+        line += " | " + a.GetCost().ToString("F2") + " грн";
 
         Console.WriteLine(line);
     }
