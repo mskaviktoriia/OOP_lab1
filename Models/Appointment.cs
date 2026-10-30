@@ -49,9 +49,19 @@ public class Appointment : IPayable, ICancellable
         Id = _nextId++;
     }
 
-    public decimal GetCost()
+    public virtual decimal GetCost()
     {
         return DurationMinutes * 10m;
+    }
+
+    public virtual string GetDescription()
+    {
+        return "Прийом";
+    }
+
+    public int GetPriority()
+    {
+        return 3;
     }
 
     public void MarkPaid()
@@ -86,12 +96,14 @@ public class Appointment : IPayable, ICancellable
 
     public override string ToString()
     {
-        string result = "[" + Id + "] Patient #" + PatientId + " -> Doctor #" + DoctorId +
-            " | " + ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "-" + EndsAt.ToString("HH:mm") +
+        string result = "[" + Id + "] " + GetDescription() + " | Пацієнт #" + PatientId + " → Лікар #" + DoctorId +
+            " | " + ScheduledAt.ToString("dd.MM.yyyy HH:mm") + "–" + EndsAt.ToString("HH:mm") +
             " | " + Status;
 
         if (Notes.Length > 0)
             result += " | " + Notes;
+
+        result += " | " + GetCost().ToString("F2") + " грн";
 
         return result;
     }
