@@ -850,6 +850,7 @@ class Program
             Console.WriteLine("6. By date");
             Console.WriteLine("7. Upcoming");
             Console.WriteLine("8. Скасувати всі записи пацієнта");
+            Console.WriteLine("9. За типом прийому");
             Console.WriteLine("0. Back");
             Console.Write("Choose: ");
 
@@ -985,6 +986,35 @@ class Program
 
                         int cancelled = AppointmentManager.CancelAll(manager.GetByPatient(cid), why);
                         Console.WriteLine("Скасовано записів: " + cancelled);
+                        break;
+                    }
+
+                case "9":
+                    {
+                        Console.WriteLine("  1. Термінові");
+                        Console.WriteLine("  2. Консультації спеціаліста");
+                        Console.WriteLine("  3. Звичайні");
+                        Console.Write("Оберіть: ");
+                        string typeChoice = Console.ReadLine();
+
+                        switch (typeChoice)
+                        {
+                            case "1":
+                                manager.DisplayList(manager.GetUrgent());
+                                break;
+
+                            case "2":
+                                manager.DisplayList(manager.GetSpecialist());
+                                break;
+
+                            case "3":
+                                manager.DisplayList(manager.GetRegular());
+                                break;
+
+                            default:
+                                Console.WriteLine("Wrong option.");
+                                break;
+                        }
                         break;
                     }
 
