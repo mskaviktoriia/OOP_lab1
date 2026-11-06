@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ClinicApp.Enums;
 using ClinicApp.Models;
 
@@ -6,53 +7,51 @@ namespace ClinicApp.Managers;
 
 public class PatientManager
 {
-    private Patient[] patients = new Patient[100];
-    private int count = 0;
+    private List<Patient> _patients = new List<Patient>();
 
+    public int Count => _patients.Count;
 
     public Patient this[int index]
     {
         get
         {
-            if (index < 0 || index >= count)
+            if (index < 0 || index >= _patients.Count)
                 return null;
 
-            return patients[index];
+            return _patients[index];
         }
     }
 
     public void Add(Patient p)
     {
-        if (count >= patients.Length)
-        {
-            Console.WriteLine("Array is full!");
-            return;
-        }
+        _patients.Add(p);
+    }
 
-        patients[count] = p;
-        count++;
+    public Patient[] GetAll()
+    {
+        return _patients.ToArray();
     }
 
     public void ShowAll()
     {
-        if (count == 0)
+        if (_patients.Count == 0)
         {
             Console.WriteLine("No patients yet.");
             return;
         }
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
-            Console.WriteLine(patients[i]);
+            Console.WriteLine(_patients[i]);
         }
     }
 
     public Patient FindByName(string name)
     {
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
-            if (patients[i].FullName.ToLower().Contains(name.ToLower()))
-                return patients[i];
+            if (_patients[i].FullName.ToLower().Contains(name.ToLower()))
+                return _patients[i];
         }
 
         return null;
@@ -60,30 +59,18 @@ public class PatientManager
 
     public bool Remove(int id)
     {
-        int index = -1;
-
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
-            if (patients[i].Id == id)
+            if (_patients[i].Id == id)
             {
-                index = i;
-                break;
+                _patients.RemoveAt(i);
+                return true;
             }
         }
 
-        if (index == -1)
-            return false;
-
-        for (int i = index; i < count - 1; i++)
-        {
-            patients[i] = patients[i + 1];
-        }
-
-        patients[count - 1] = null;
-        count--;
-
-        return true;
+        return false;
     }
+
     public bool TryFindById(int id, out Patient patient)
     {
         patient = FindById(id);
@@ -92,29 +79,20 @@ public class PatientManager
 
     public Patient[] FindByBloodType(BloodType bloodType)
     {
-        int n = 0;
-        for (int i = 0; i < count; i++)
-            if (patients[i].BloodType == bloodType)
-                n++;
+        List<Patient> result = new List<Patient>();
 
-        Patient[] result = new Patient[n];
-        int idx = 0;
-
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
-            if (patients[i].BloodType == bloodType)
-            {
-                result[idx] = patients[i];
-                idx++;
-            }
+            if (_patients[i].BloodType == bloodType)
+                result.Add(_patients[i]);
         }
 
-        return result;
+        return result.ToArray();
     }
 
     public void Statistics()
     {
-        if (count == 0)
+        if (_patients.Count == 0)
         {
             Console.WriteLine("No patients yet.");
             return;
@@ -123,18 +101,18 @@ public class PatientManager
         int children = 0, adults = 0, seniors = 0;
         double totalAge = 0;
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
-            totalAge += patients[i].Age;
+            totalAge += _patients[i].Age;
 
-            string cat = patients[i].Classify();
+            string cat = _patients[i].Classify();
             if (cat == "Child") children++;
             else if (cat == "Adult") adults++;
             else seniors++;
         }
 
-        Console.WriteLine("Total patients: " + count);
-        Console.WriteLine("Average age: " + (totalAge / count).ToString("F1"));
+        Console.WriteLine("Total patients: " + _patients.Count);
+        Console.WriteLine("Average age: " + (totalAge / _patients.Count).ToString("F1"));
         Console.WriteLine("Children: " + children);
         Console.WriteLine("Adults: " + adults);
         Console.WriteLine("Seniors: " + seniors);
@@ -142,14 +120,12 @@ public class PatientManager
 
     public Patient FindById(int id)
     {
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
-            if (patients[i].Id == id)
-                return patients[i];
+            if (_patients[i].Id == id)
+                return _patients[i];
         }
 
         return null;
     }
-
-    public int Count => count;
 }
