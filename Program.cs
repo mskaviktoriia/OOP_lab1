@@ -160,7 +160,8 @@ class Program
             MenuLine("  3. Записи         — прийоми, скасування");
             MenuLine("  4. Медична картка — діагнози, рецепти");
             MenuLine("  5. Рахунки        — оплата, борги");
-            MenuLine("  6. Звіт           — загальна статистика");
+            MenuLine("  6. Черга          — очікування, прийом");
+            MenuLine("  7. Звіт           — загальна статистика");
             MenuLine("  0. Вийти");
             Console.WriteLine("╚" + new string('═', 46) + "╝");
             Console.Write("Оберіть розділ: ");
@@ -190,6 +191,10 @@ class Program
                     break;
 
                 case "6":
+                    WaitingRoomMenu(clinic);
+                    break;
+
+                case "7":
                     clinic.Report();
                     break;
 
@@ -497,6 +502,97 @@ class Program
                 case "6":
                     manager.Statistics();
                     break;
+
+                case "0":
+                    inMenu = false;
+                    break;
+
+                default:
+                    Console.WriteLine("Wrong option.");
+                    break;
+            }
+        }
+    }
+
+    static void WaitingRoomMenu(Clinic clinic)
+    {
+        bool inMenu = true;
+
+        while (inMenu)
+        {
+            Console.WriteLine();
+            Console.WriteLine("── Черга ───────────────────────");
+            Console.WriteLine("  1. Додати пацієнта до черги");
+            Console.WriteLine("  2. Прийняти першого");
+            Console.WriteLine("  3. Хто перший?");
+            Console.WriteLine("  4. Переглянути всю чергу");
+            Console.WriteLine("  0. Назад");
+            Console.Write("Оберіть: ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    {
+                        Console.Write("ID пацієнта: ");
+                        if (!int.TryParse(Console.ReadLine(), out int pid))
+                        {
+                            Console.WriteLine("Помилка: некоректне число.");
+                            break;
+                        }
+
+                        Patient p = clinic.Patients.FindById(pid);
+
+                        if (p == null)
+                        {
+                            Console.WriteLine("Пацієнта не знайдено.");
+                            break;
+                        }
+
+                        clinic.WaitingRoom.Enqueue(p);
+                        Console.WriteLine("Додано до черги: " + p.FullName + ". У черзі: " + clinic.WaitingRoom.Count);
+                        break;
+                    }
+
+                case "2":
+                    try
+                    {
+                        Patient next = clinic.WaitingRoom.Dequeue();
+                        Console.WriteLine("Прийнято: " + next.FullName + ". У черзі лишилось: " + clinic.WaitingRoom.Count);
+                    }
+                    catch (InvalidOperationException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    break;
+
+                case "3":
+                    try
+                    {
+                        Patient first = clinic.WaitingRoom.Peek();
+                        Console.WriteLine("Перший у черзі: " + first.FullName);
+                    }
+                    catch (InvalidOperationException e)
+                    {
+                        Console.WriteLine("Помилка: " + e.Message);
+                    }
+                    break;
+
+                case "4":
+                    {
+                        Patient[] all = clinic.WaitingRoom.ToArray();
+
+                        if (all.Length == 0)
+                        {
+                            Console.WriteLine("Черга порожня.");
+                            break;
+                        }
+
+                        for (int i = 0; i < all.Length; i++)
+                            Console.WriteLine((i + 1) + ". " + all[i].FullName);
+                        break;
+                    }
 
                 case "0":
                     inMenu = false;
