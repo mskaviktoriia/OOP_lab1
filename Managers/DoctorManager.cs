@@ -31,6 +31,16 @@ public class DoctorManager
         count++;
     }
 
+    public Doctor[] GetAll()
+    {
+        Doctor[] result = new Doctor[count];
+
+        for (int i = 0; i < count; i++)
+            result[i] = doctors[i];
+
+        return result;
+    }
+
     public void ShowAll()
     {
         if (count == 0)
