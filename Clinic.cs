@@ -1,6 +1,7 @@
 ﻿using System;
 using ClinicApp.Managers;
 using ClinicApp.Models;
+using ClinicApp.Utils;
 
 namespace ClinicApp;
 
@@ -14,6 +15,9 @@ public class Clinic
     public WaitingQueue<Patient> WaitingRoom { get; }
     public AnalyticsManager Analytics { get; }
     public TreatmentPlanManager TreatmentPlans { get; }
+    public ClinicLogger Logger { get; }
+    public ClinicExporter Exporter { get; }
+    public SessionManager Session { get; }
 
     public Clinic()
     {
@@ -25,6 +29,9 @@ public class Clinic
         WaitingRoom = new WaitingQueue<Patient>();
         Analytics = new AnalyticsManager(Appointments, Doctors, Patients);
         TreatmentPlans = new TreatmentPlanManager();
+        Logger = new ClinicLogger();
+        Exporter = new ClinicExporter(this);
+        Session = new SessionManager();
     }
 
     public void Report()

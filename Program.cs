@@ -12,6 +12,8 @@ using ClinicApp.Utils;
 
 class Program
 {
+    static ClinicLogger _logger;
+
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -19,6 +21,7 @@ class Program
         Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
         Clinic clinic = new Clinic();
+        _logger = clinic.Logger;
 
         PatientManager patientManager = clinic.Patients;
         DoctorManager doctorManager = clinic.Doctors;
@@ -47,6 +50,19 @@ class Program
         recordManager.Add(new Prescription(2, 2, DateTime.Today.AddDays(-40), "Амоксицилін", "500 мг", 10, "після їжі"));
         recordManager.Add(new Diagnosis(2, 2, DateTime.Today.AddDays(-15), "K29.7", "Гастрит"));
         recordManager.Add(new LabResult(3, 3, DateTime.Today.AddDays(-2), "Глюкоза", 5.1, "ммоль/л", "3.9–5.5", true));
+
+        if (clinic.Session.Exists())
+        {
+            Console.Write("Знайдено збережену сесію. Завантажити? (y/n): ");
+            string loadAnswer = Console.ReadLine();
+
+            if (loadAnswer != null && loadAnswer.Trim().ToLower() == "y")
+            {
+                int loaded = clinic.Session.Load(clinic);
+                Console.WriteLine("Завантажено " + loaded + " пацієнтів.");
+                _logger.LogInfo("Завантажено сесію: " + loaded + " пацієнтів.");
+            }
+        }
 
         Console.WriteLine("=== Demo: overloads ===");
         Doctor byEnum = doctorManager.FindBySpeciality(Speciality.Cardiology);
@@ -166,6 +182,7 @@ class Program
             MenuLine("  7. Звіт           — загальна статистика");
             MenuLine("  8. Аналітика      — лікарі, пацієнти");
             MenuLine("  9. Плани лікування — рефлексія, атрибути");
+            MenuLine("  10. Файли         — лог, експорт");
             MenuLine("  0. Вийти");
             Console.WriteLine("╚" + new string('═', 46) + "╝");
             Console.Write("Оберіть розділ: ");
@@ -210,7 +227,21 @@ class Program
                     TreatmentPlansMenu(clinic.TreatmentPlans);
                     break;
 
+                case "10":
+                    FilesMenu(clinic);
+                    break;
+
                 case "0":
+                    Console.Write("Зберегти сесію? (y/n): ");
+                    string saveAnswer = Console.ReadLine();
+
+                    if (saveAnswer != null && saveAnswer.Trim().ToLower() == "y")
+                    {
+                        clinic.Session.Save(clinic);
+                        Console.WriteLine("Сесію збережено.");
+                        _logger.LogInfo("Сесію збережено.");
+                    }
+
                     running = false;
                     break;
 
@@ -271,20 +302,25 @@ class Program
 
                         BloodType blood = (BloodType)bloodNum;
 
-                        manager.Add(new Patient(firstName, lastName, dob, phone, diag, blood));
+                        Patient newPatient = new Patient(firstName, lastName, dob, phone, diag, blood);
+                        manager.Add(newPatient);
                         Console.WriteLine("Added.");
+                        _logger.LogInfo("Додано пацієнта #" + newPatient.Id + ": " + newPatient.FullName);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
                         Console.WriteLine("Помилка: " + e.Message);
+                        _logger.LogWarning("Помилка введення: " + e.Message);
                     }
                     catch (ArgumentException e)
                     {
                         Console.WriteLine("Помилка: " + e.Message);
+                        _logger.LogWarning("Помилка введення: " + e.Message);
                     }
                     catch (FormatException)
                     {
                         Console.WriteLine("Помилка: неправильний формат введення.");
+                        _logger.LogWarning("Помилка введення: неправильний формат введення.");
                     }
                     break;
 
@@ -415,20 +451,25 @@ class Program
 
                         WorkSchedule schedule = new WorkSchedule(start, end);
 
-                        manager.Add(new Doctor(firstName, lastName, license, phone, spec, schedule));
+                        Doctor newDoctor = new Doctor(firstName, lastName, license, phone, spec, schedule);
+                        manager.Add(newDoctor);
                         Console.WriteLine("Added.");
+                        _logger.LogInfo("Додано лікаря #" + newDoctor.Id + ": " + newDoctor.FullName);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
                         Console.WriteLine("Помилка: " + e.Message);
+                        _logger.LogWarning("Помилка введення: " + e.Message);
                     }
                     catch (ArgumentException e)
                     {
                         Console.WriteLine("Помилка: " + e.Message);
+                        _logger.LogWarning("Помилка введення: " + e.Message);
                     }
                     catch (FormatException)
                     {
                         Console.WriteLine("Помилка: неправильний формат введення.");
+                        _logger.LogWarning("Помилка введення: неправильний формат введення.");
                     }
                     break;
 
@@ -873,6 +914,94 @@ class Program
         }
     }
 
+    static void FilesMenu(Clinic clinic)
+    {
+        ClinicLogger logger = clinic.Logger;
+        bool inMenu = true;
+
+        while (inMenu)
+        {
+            Console.WriteLine();
+            Console.WriteLine("── Файли ───────────────────────");
+            Console.WriteLine("  1. Останні рядки лога");
+            Console.WriteLine("  2. Очистити лог");
+            Console.WriteLine("  3. Експортувати всі звіти");
+            Console.WriteLine("  4. Імпорт пацієнтів з CSV");
+            Console.WriteLine("  0. Назад");
+            Console.Write("Оберіть: ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    {
+                        Console.Write("Скільки рядків: ");
+                        if (!int.TryParse(Console.ReadLine(), out int n))
+                        {
+                            Console.WriteLine("Помилка: некоректне число.");
+                            break;
+                        }
+
+                        string[] lines = logger.GetLastLines(n);
+
+                        if (lines.Length == 0)
+                        {
+                            Console.WriteLine("Лог порожній або файлу немає.");
+                            break;
+                        }
+
+                        for (int i = 0; i < lines.Length; i++)
+                            Console.WriteLine(lines[i]);
+                        break;
+                    }
+
+                case "2":
+                    logger.Clear();
+                    Console.WriteLine("Лог очищено.");
+                    break;
+
+                case "3":
+                    try
+                    {
+                        string[] paths = clinic.Exporter.ExportAll();
+
+                        Console.WriteLine("Створено файли:");
+                        for (int i = 0; i < paths.Length; i++)
+                            Console.WriteLine("  " + paths[i]);
+
+                        logger.LogInfo("Експортовано звіти: " + paths.Length + " файли.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Помилка експорту: " + e.Message);
+                        logger.LogError("Помилка експорту: " + e.Message);
+                    }
+                    break;
+
+                case "4":
+                    {
+                        Console.Write("Шлях до CSV-файлу: ");
+                        string csvPath = Console.ReadLine().Trim().Trim('"');
+
+                        ImportResult importResult = CsvImporter.ImportPatients(clinic, csvPath);
+                        importResult.Print();
+
+                        logger.LogInfo("Імпорт пацієнтів з CSV: імпортовано " + importResult.Imported + ", пропущено " + importResult.Skipped);
+                        break;
+                    }
+
+                case "0":
+                    inMenu = false;
+                    break;
+
+                default:
+                    Console.WriteLine("Wrong option.");
+                    break;
+            }
+        }
+    }
+
     static void MenuLine(string text)
     {
         Console.WriteLine("║" + text.PadRight(46) + "║");
@@ -931,7 +1060,10 @@ class Program
                         }
 
                         if (billing.PayAppointment(aid))
+                        {
                             Console.WriteLine("Запис [" + aid + "] оплачено.");
+                            _logger.LogInfo("Запис #" + aid + " оплачено.");
+                        }
                         else
                             Console.WriteLine("Не вдалося оплатити: запис не знайдено, вже оплачено або скасовано.");
                         break;
@@ -1240,19 +1372,26 @@ class Program
                         string durStr = Console.ReadLine();
                         int dur = durStr.Length > 0 ? int.Parse(durStr) : 30;
 
-                        manager.Book(pid, did, dt, dur);
+                        if (manager.Book(pid, did, dt, dur))
+                        {
+                            Appointment last = manager[manager.Count - 1];
+                            _logger.LogInfo("Запис #" + last.Id + " створено: пацієнт #" + pid + " → лікар #" + did);
+                        }
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
                         Console.WriteLine("Помилка: " + e.Message);
+                        _logger.LogWarning("Помилка введення: " + e.Message);
                     }
                     catch (ArgumentException e)
                     {
                         Console.WriteLine("Помилка: " + e.Message);
+                        _logger.LogWarning("Помилка введення: " + e.Message);
                     }
                     catch (FormatException)
                     {
                         Console.WriteLine("Помилка: неправильний формат введення.");
+                        _logger.LogWarning("Помилка введення: неправильний формат введення.");
                     }
                     break;
 
@@ -1265,7 +1404,10 @@ class Program
                         string reason = Console.ReadLine();
 
                         if (manager.Cancel(cancelId, reason))
+                        {
                             Console.WriteLine("Appointment [" + cancelId + "] cancelled.");
+                            _logger.LogInfo("Запис #" + cancelId + " скасовано. Причина: " + reason);
+                        }
                         else
                             Console.WriteLine("Not found or already final.");
                     }
@@ -1282,7 +1424,10 @@ class Program
                         int compId = int.Parse(Console.ReadLine());
 
                         if (manager.Complete(compId))
+                        {
                             Console.WriteLine("Appointment [" + compId + "] completed.");
+                            _logger.LogInfo("Запис #" + compId + " завершено.");
+                        }
                         else
                             Console.WriteLine("Not found or already final.");
                     }
