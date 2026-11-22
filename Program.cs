@@ -51,6 +51,19 @@ class Program
         recordManager.Add(new Diagnosis(2, 2, DateTime.Today.AddDays(-15), "K29.7", "Гастрит"));
         recordManager.Add(new LabResult(3, 3, DateTime.Today.AddDays(-2), "Глюкоза", 5.1, "ммоль/л", "3.9–5.5", true));
 
+        if (clinic.Session.Exists())
+        {
+            Console.Write("Знайдено збережену сесію. Завантажити? (y/n): ");
+            string loadAnswer = Console.ReadLine();
+
+            if (loadAnswer != null && loadAnswer.Trim().ToLower() == "y")
+            {
+                int loaded = clinic.Session.Load(clinic);
+                Console.WriteLine("Завантажено " + loaded + " пацієнтів.");
+                _logger.LogInfo("Завантажено сесію: " + loaded + " пацієнтів.");
+            }
+        }
+
         Console.WriteLine("=== Demo: overloads ===");
         Doctor byEnum = doctorManager.FindBySpeciality(Speciality.Cardiology);
         Doctor byText = doctorManager.FindBySpeciality("кардіо");
@@ -219,6 +232,16 @@ class Program
                     break;
 
                 case "0":
+                    Console.Write("Зберегти сесію? (y/n): ");
+                    string saveAnswer = Console.ReadLine();
+
+                    if (saveAnswer != null && saveAnswer.Trim().ToLower() == "y")
+                    {
+                        clinic.Session.Save(clinic);
+                        Console.WriteLine("Сесію збережено.");
+                        _logger.LogInfo("Сесію збережено.");
+                    }
+
                     running = false;
                     break;
 
