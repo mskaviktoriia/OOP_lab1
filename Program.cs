@@ -215,7 +215,7 @@ class Program
                     break;
 
                 case "10":
-                    FilesMenu(clinic.Logger);
+                    FilesMenu(clinic);
                     break;
 
                 case "0":
@@ -891,8 +891,9 @@ class Program
         }
     }
 
-    static void FilesMenu(ClinicLogger logger)
+    static void FilesMenu(Clinic clinic)
     {
+        ClinicLogger logger = clinic.Logger;
         bool inMenu = true;
 
         while (inMenu)
@@ -901,6 +902,7 @@ class Program
             Console.WriteLine("── Файли ───────────────────────");
             Console.WriteLine("  1. Останні рядки лога");
             Console.WriteLine("  2. Очистити лог");
+            Console.WriteLine("  3. Експортувати всі звіти");
             Console.WriteLine("  0. Назад");
             Console.Write("Оберіть: ");
 
@@ -933,6 +935,24 @@ class Program
                 case "2":
                     logger.Clear();
                     Console.WriteLine("Лог очищено.");
+                    break;
+
+                case "3":
+                    try
+                    {
+                        string[] paths = clinic.Exporter.ExportAll();
+
+                        Console.WriteLine("Створено файли:");
+                        for (int i = 0; i < paths.Length; i++)
+                            Console.WriteLine("  " + paths[i]);
+
+                        logger.LogInfo("Експортовано звіти: " + paths.Length + " файли.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Помилка експорту: " + e.Message);
+                        logger.LogError("Помилка експорту: " + e.Message);
+                    }
                     break;
 
                 case "0":
