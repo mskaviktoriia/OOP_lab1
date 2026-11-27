@@ -308,7 +308,6 @@ class Program
                         Patient newPatient = new Patient(firstName, lastName, dob, phone, diag, blood);
                         manager.Add(newPatient);
                         Console.WriteLine("Added.");
-                        _logger.LogInfo("Додано пацієнта #" + newPatient.Id + ": " + newPatient.FullName);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
@@ -871,7 +870,7 @@ class Program
                             break;
                         }
 
-                        if (plan.Complete())
+                        if (manager.Complete(cid))
                             Console.WriteLine("План [" + cid + "] завершено.");
                         else
                             Console.WriteLine("Не вдалося завершити: поточний статус " + plan.Status + ".");
@@ -1069,10 +1068,7 @@ class Program
                         }
 
                         if (billing.PayAppointment(aid))
-                        {
                             Console.WriteLine("Запис [" + aid + "] оплачено.");
-                            _logger.LogInfo("Запис #" + aid + " оплачено.");
-                        }
                         else
                             Console.WriteLine("Не вдалося оплатити: запис не знайдено, вже оплачено або скасовано.");
                         break;
@@ -1381,11 +1377,7 @@ class Program
                         string durStr = Console.ReadLine();
                         int dur = durStr.Length > 0 ? int.Parse(durStr) : 30;
 
-                        if (manager.Book(pid, did, dt, dur))
-                        {
-                            Appointment last = manager[manager.Count - 1];
-                            _logger.LogInfo("Запис #" + last.Id + " створено: пацієнт #" + pid + " → лікар #" + did);
-                        }
+                        manager.Book(pid, did, dt, dur);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
@@ -1413,10 +1405,7 @@ class Program
                         string reason = Console.ReadLine();
 
                         if (manager.Cancel(cancelId, reason))
-                        {
                             Console.WriteLine("Appointment [" + cancelId + "] cancelled.");
-                            _logger.LogInfo("Запис #" + cancelId + " скасовано. Причина: " + reason);
-                        }
                         else
                             Console.WriteLine("Not found or already final.");
                     }
@@ -1433,10 +1422,7 @@ class Program
                         int compId = int.Parse(Console.ReadLine());
 
                         if (manager.Complete(compId))
-                        {
                             Console.WriteLine("Appointment [" + compId + "] completed.");
-                            _logger.LogInfo("Запис #" + compId + " завершено.");
-                        }
                         else
                             Console.WriteLine("Not found or already final.");
                     }
@@ -1502,7 +1488,7 @@ class Program
                         Console.Write("Причина (Enter — без причини): ");
                         string why = Console.ReadLine() ?? "";
 
-                        int cancelled = AppointmentManager.CancelAll(manager.GetByPatient(cid), why);
+                        int cancelled = manager.CancelAll(manager.GetByPatient(cid), why);
                         Console.WriteLine("Скасовано записів: " + cancelled);
                         break;
                     }

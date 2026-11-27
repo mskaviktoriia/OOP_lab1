@@ -18,6 +18,9 @@ public class AppointmentManager
     public int Count => _count;
 
     public event EventHandler<AppointmentEventArgs> AppointmentBooked;
+    public event EventHandler<AppointmentEventArgs> AppointmentCancelled;
+    public event EventHandler<AppointmentEventArgs> AppointmentCompleted;
+    public event EventHandler<AppointmentEventArgs> UrgentAppointmentBooked;
 
     public Appointment this[int index]
     {
@@ -42,7 +45,13 @@ public class AppointmentManager
 
     public bool BookUrgent(int patientId, int doctorId, DateTime scheduledAt, string urgencyNote = "", int durationMinutes = 30)
     {
-        return Register(new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes));
+        UrgentAppointment urgent = new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes);
+        bool booked = Register(urgent);
+
+        if (booked)
+            UrgentAppointmentBooked?.Invoke(this, new AppointmentEventArgs(urgent.Id, urgent.PatientId, urgent.DoctorId, urgent.ScheduledAt, urgent.UrgencyNote));
+
+        return booked;
     }
 
     public bool BookSpecialist(int patientId, int doctorId, DateTime scheduledAt, string topic = "", int durationMinutes = 45)
@@ -105,7 +114,17 @@ public class AppointmentManager
         if (a == null)
             return false;
 
-        return a.Cancel(reason);
+        bool cancelled = a.Cancel(reason);
+
+        if (cancelled)
+            RaiseCancelled(a);
+
+        return cancelled;
+    }
+
+    private void RaiseCancelled(Appointment a)
+    {
+        AppointmentCancelled?.Invoke(this, new AppointmentEventArgs(a.Id, a.PatientId, a.DoctorId, a.ScheduledAt, a.Notes));
     }
 
     public bool Complete(int id)
@@ -115,17 +134,27 @@ public class AppointmentManager
         if (a == null)
             return false;
 
-        return a.Complete();
+        bool completed = a.Complete();
+
+        if (completed)
+            AppointmentCompleted?.Invoke(this, new AppointmentEventArgs(a.Id, a.PatientId, a.DoctorId, a.ScheduledAt, a.Notes));
+
+        return completed;
     }
 
-    public static int CancelAll(ICancellable[] items, string reason = "")
+    public int CancelAll(ICancellable[] items, string reason = "")
     {
         int cancelled = 0;
 
         for (int i = 0; i < items.Length; i++)
         {
             if (items[i].Cancel(reason))
+            {
                 cancelled++;
+
+                if (items[i] is Appointment a)
+                    RaiseCancelled(a);
+            }
         }
 
         return cancelled;
