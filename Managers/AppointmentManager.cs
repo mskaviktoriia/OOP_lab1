@@ -1,4 +1,5 @@
 using System;
+using ClinicApp.Events;
 using ClinicApp.Interfaces;
 using ClinicApp.Models;
 
@@ -15,6 +16,8 @@ public class AppointmentManager
     private DoctorManager _doctors;
 
     public int Count => _count;
+
+    public event EventHandler<AppointmentEventArgs> AppointmentBooked;
 
     public Appointment this[int index]
     {
@@ -78,6 +81,8 @@ public class AppointmentManager
 
         Console.WriteLine("Appointment [" + a.Id + "] created: " + p.FullName + " -> " + d.FullName +
             " at " + scheduledAt.ToString("dd.MM.yyyy HH:mm"));
+
+        AppointmentBooked?.Invoke(this, new AppointmentEventArgs(a.Id, a.PatientId, a.DoctorId, a.ScheduledAt, a.Notes));
 
         return true;
     }

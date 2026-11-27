@@ -5,6 +5,7 @@ using System.Threading;
 using ClinicApp;
 using ClinicApp.Comparators;
 using ClinicApp.Enums;
+using ClinicApp.Events;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
 using ClinicApp.Models;
@@ -34,6 +35,8 @@ class Program
         doctorManager.Add(new Doctor("Petro", "Ivanenko", "AA-1001", "0504445566", Speciality.General, new WorkSchedule(8, 16)));
         doctorManager.Add(new Doctor("Maria", "Shevchenko", "AA-1002", "0507778899", Speciality.Surgery, new WorkSchedule(10, 18)));
         doctorManager.Add(new Doctor("Oleg", "Tkachenko", "AA-1003", "0631234321", Speciality.Cardiology, new WorkSchedule(12, 20)));
+
+        appointmentManager.AppointmentBooked += OnAppointmentBookedConsole;
 
         appointmentManager.Book(1, 1, DateTime.Now.AddDays(1));
         appointmentManager.Book(2, 2, DateTime.Now.AddDays(2), 45);
@@ -1000,6 +1003,12 @@ class Program
                     break;
             }
         }
+    }
+
+    static void OnAppointmentBookedConsole(object sender, AppointmentEventArgs e)
+    {
+        Console.WriteLine("  [EVENT] Запис #" + e.AppointmentId + " створено: пацієнт #" + e.PatientId +
+            " → лікар #" + e.DoctorId + ", " + e.ScheduledAt.ToString("dd.MM.yyyy HH:mm"));
     }
 
     static void MenuLine(string text)
