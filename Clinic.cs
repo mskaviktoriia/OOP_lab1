@@ -18,6 +18,7 @@ public class Clinic
     public ClinicLogger Logger { get; }
     public ClinicExporter Exporter { get; }
     public SessionManager Session { get; }
+    public PatientPassportWriter Passport { get; }
 
     public Clinic()
     {
@@ -32,6 +33,7 @@ public class Clinic
         Logger = new ClinicLogger();
         Exporter = new ClinicExporter(this);
         Session = new SessionManager();
+        Passport = new PatientPassportWriter(this);
 
         SubscribeEvents();
     }
@@ -39,12 +41,15 @@ public class Clinic
     private void SubscribeEvents()
     {
         Patients.PatientAdded += Logger.OnPatientAdded;
+        Patients.PatientAdded += Passport.OnPatientAdded;
         Appointments.AppointmentBooked += Logger.OnAppointmentBooked;
         Appointments.UrgentAppointmentBooked += Logger.OnUrgentAppointmentBooked;
         Appointments.AppointmentCancelled += Logger.OnAppointmentCancelled;
         Appointments.AppointmentCompleted += Logger.OnAppointmentCompleted;
+        Appointments.AppointmentCompleted += Passport.OnAppointmentCompleted;
         Billing.PaymentReceived += Logger.OnPaymentReceived;
         TreatmentPlans.PlanCompleted += Logger.OnPlanCompleted;
+        TreatmentPlans.PlanCompleted += Passport.OnPlanCompleted;
     }
 
     public void Report()
